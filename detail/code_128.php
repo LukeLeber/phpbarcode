@@ -365,7 +365,19 @@
             Code128::START_B_ENCODING,
             Code128::START_C_ENCODING
         );
-        
+
+        /**
+         * Attempts to retrieve the character set for the provided mode.
+         *
+         * @param the mode whose character set to retrieve
+         *
+         * @return the character set for the provided mode
+         *
+         * @throws EncoderException if the provided mode is not one of 
+         * {@link Code128::MODE_A}, {@link Code128::MODE_B}, or 
+         * {@link Code128::MODE_C}
+         *
+         */
         private function getCharsetFor($mode)
         {
             switch ($mode)
@@ -381,6 +393,18 @@
             }
         }
 
+        /**
+         * Attempts to retrieve the start encoding for the provided mode.
+         *
+         * @param mode the mode whose start encoding to retrieve
+         *
+         * @return the start encoding for the provided mode
+         *
+         * @throws EncoderException if the provided mode is not one of 
+         * {@link Code128::MODE_A}, {@link Code128::MODE_B}, or 
+         * {@link Code128::MODE_C}
+         *
+         */
         private function getStartSequenceFor($mode)
         {
             switch($mode)
@@ -396,6 +420,15 @@
             }
         }
 
+        /**
+         * Determines whether a particular mode (either A or B) is required 
+         * or if the preferred mode (the mode that is currently being used) 
+         * can remain active.
+         *
+         * @param text
+         * @param offset
+         * @param preferred
+         */
         private function getMode00($text, $offset, $preferred)
         {
             $c = $text[$offset];
@@ -421,23 +454,23 @@
             if(($c != Code128::FNC1 && !(ctype_digit($c) &&
             ($offset < strlen($text) && ctype_digit($text[$offset])))))
             {
-            if(ctype_lower($c) ||
-            $c == '`' || $c == '{' || $c == '|' || $c == '}' || $c == '~' || $c == Code128::DEL)
-            {
-                return Code128::MODE_B;
-            }
-            else if(!ctype_alpha($c))
-            {
-                return Code128::MODE_A;
-            }
-            else if($offset < strlen($text))
-            {
-                return $this->getMode00($text, $offset, $preferredMode);
-            }
-            else if($preferredMode != Code128::MODE_C)
-            {
-                return $preferredMode;
-            }
+                if(ctype_lower($c) ||
+                $c == '`' || $c == '{' || $c == '|' || $c == '}' || $c == '~' || $c == Code128::DEL)
+                {
+                    return Code128::MODE_B;
+                }
+                else if(!ctype_alpha($c))
+                {
+                    return Code128::MODE_A;
+                }
+                else if($offset < strlen($text))
+                {
+                    return $this->getMode00($text, $offset, $preferredMode);
+                }
+                else if($preferredMode != Code128::MODE_C)
+                {
+                    return $preferredMode;
+                }
                 return Code128::MODE_A;
             }
             else
@@ -445,6 +478,7 @@
                 return Code128::MODE_C;
             }
         }
+        
         
         private function getMode($text, $offset)
         {
